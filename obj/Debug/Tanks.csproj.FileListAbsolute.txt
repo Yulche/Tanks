@@ -1,0 +1,10 @@
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.csprojAssemblyReference.cache
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.GlobalConst.resources
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.Properties.Resources.resources
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.csproj.GenerateResource.cache
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.csproj.CoreCompileInputs.cache
+C:\Users\ruslan\source\repos\Tanks\bin\Debug\Tanks.exe.config
+C:\Users\ruslan\source\repos\Tanks\bin\Debug\Tanks.exe
+C:\Users\ruslan\source\repos\Tanks\bin\Debug\Tanks.pdb
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.exe
+C:\Users\ruslan\source\repos\Tanks\obj\Debug\Tanks.pdb

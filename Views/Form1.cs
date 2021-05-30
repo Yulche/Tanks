@@ -14,7 +14,7 @@ namespace Tanks
 {
     public class GlobalConst 
     {
-        public static int WindowWidth = 800;  //размеры окна
+        public static int WindowWidth = 800;      //размеры окна
         public static int WindowHight = 600;
 
         public static int TimerInterval = 500;
@@ -22,11 +22,13 @@ namespace Tanks
         public static int TankSize = 80;         //размер танка
         public static int MoveStep = 20;         //шаг перемещения
 
-        static string Path = "..\\pic\\";                  //путь для файлов
-        public static string ImageGamerTank = Path + "tank_v1G2.png";   //изображение танка игрока
-
-        public static Image[] PictureGamerTank = new Image[4];                    //картинки для танка
-        //public static Dictionary<string, Image> PictureGamerTank;                           
+        static string Path = "..\\..\\pic\\";                  //путь для файлов, ..- уровень выше
+       //public static string ImageGamerTank = Path + "tank_v1G2.png";   //изображение танка игрока
+        
+        
+        public static Image[] PictureGamerTank = new Image[4];                    //массив картинок для танка
+        //public static Dictionary<string, Image> PictureGamerTank;     
+        public static Image[] PictureBullet = new Image[1];                       //массив картинок для снаряда
 
         public static void Init()
         {
@@ -40,35 +42,54 @@ namespace Tanks
             PictureGamerTank[1] = Image.FromFile(Path + "tank_v1G2_Down.png");
             PictureGamerTank[2] = Image.FromFile(Path + "tank_v1G2_Left.png");
             PictureGamerTank[3] = Image.FromFile(Path + "tank_v1G2_Right.png");
+
+            PictureBullet[0] = Image.FromFile(Path + "bullet.png");  //грузим картинки для снаряда
         }
 
     }
-    public class Imageobjeckt   //для отрисовки объектов
+    public class ViewBullets          //для отрисовки снарядов
     {
+        public List<PictureBox> ListViewBullets = new List<PictureBox>();
+        public void Add()            //добавляем снаряд в список
+        {
+            PictureBox item = new PictureBox();            //создаем тип PictureBox
+            item.Size = new Size(GlobalConst.TankSize, GlobalConst.TankSize); //задаем размер
 
+            item.Image = GlobalConst.PictureBullet[0];
+
+            //item.Location = new Point(Game.GamerTank.X, Game.GamerTank.Y); //подумать что с эти делать
+           // Controls.Add(item);   //подумать что с эти делать
+
+            ListViewBullets.Add(item);
+        }
     }
+
+
     public partial class Form1 : Form
     {
-        GameModel Game;          //игровая модель игра
-        Controller GameControl;   //контроллер игры
+        GameModel Game;               //игровая модель игра
+        Controller GameControl;       //контроллер игры
 
-        PictureBox GamerTank;   //отрисовка танка
+        PictureBox ViewGamerTank;         //отрисовка танка
+
+        ViewBullets VBullets;  //отрисовка снарядов
         public Form1()
         {
             InitializeComponent();
             GlobalConst.Init();
             ClientSize = new Size(GlobalConst.WindowWidth, GlobalConst.WindowHight);   //задаем размер окна
-            Game = new GameModel(); //запускаем игровую модель
+            Game = new GameModel();                                                   //запускаем игровую модель
+            GameControl = new Controller(Game);                                      //запускаем контроллер 
 
-            GamerTank = new PictureBox();    //создаем графический образ танка
-            GamerTank.Size = new Size(GlobalConst.TankSize, GlobalConst.TankSize);
+            ViewGamerTank = new PictureBox();                                             //создаем графический образ танка
+            ViewGamerTank.Size = new Size(GlobalConst.TankSize, GlobalConst.TankSize);
             //GamerTank.ImageLocation = GlobalConst.PictureGamerTank;
-            GamerTank.Image = GlobalConst.PictureGamerTank[0];
+            ViewGamerTank.Image = GlobalConst.PictureGamerTank[0];
 
-            GamerTank.Location = new Point(Game.GamerTank.X, Game.GamerTank.Y);            
-            Controls.Add(GamerTank);
+            ViewGamerTank.Location = new Point(Game.GamerTank.X, Game.GamerTank.Y);            
+            Controls.Add(ViewGamerTank);
 
-            GameControl = new Controller(Game);          //запускаем контроллер 
+            
 
             /*
             Paint += (sender, args) =>
@@ -83,9 +104,9 @@ namespace Tanks
             };*/
 
             //зацикливаем игру
-            int time = 0;                     //количество циклов таймера 
-            Timer timer = new Timer();        //создаем таймер
-            timer.Interval = GlobalConst.TimerInterval; //период таймера
+            int time = 0;                                         //количество циклов таймера 
+            Timer timer = new Timer();                            //создаем таймер
+            timer.Interval = GlobalConst.TimerInterval;           //период таймера
             timer.Tick += (sender, args) =>             //
             {
                 time++;
@@ -95,12 +116,12 @@ namespace Tanks
             //
         }
 
-        protected override void OnKeyDown(KeyEventArgs e) //обработка кнопок
+        protected override void OnKeyDown(KeyEventArgs e)       //обработка кнопок
         {
-            GameControl.ControlKey(e.KeyCode);  //передач в контроллер
+            GameControl.ControlKey(e.KeyCode);                 //передач в контроллер
 
-            GamerTank.Location = new Point(Game.GamerTank.X, Game.GamerTank.Y); //изменение положения
-            GamerTank.Image = GlobalConst.PictureGamerTank[(int) Game.GamerTank.direction]; //изменение направления
+            ViewGamerTank.Location = new Point(Game.GamerTank.X, Game.GamerTank.Y);             //изменение положения
+            ViewGamerTank.Image = GlobalConst.PictureGamerTank[(int) Game.GamerTank.direction]; //изменение направления
         }
     }
 }
