@@ -18,3 +18,13 @@ F:\Users\lan\Desktop\develop\projeckt\c#\Game\Tanks\obj\Debug\Tanks.csproj.Gener
 F:\Users\lan\Desktop\develop\projeckt\c#\Game\Tanks\obj\Debug\Tanks.csproj.CoreCompileInputs.cache
 F:\Users\lan\Desktop\develop\projeckt\c#\Game\Tanks\obj\Debug\Tanks.exe
 F:\Users\lan\Desktop\develop\projeckt\c#\Game\Tanks\obj\Debug\Tanks.pdb
+C:\Users\user\Desktop\develop\game\Tanks\bin\Debug\Tanks.exe.config
+C:\Users\user\Desktop\develop\game\Tanks\bin\Debug\Tanks.exe
+C:\Users\user\Desktop\develop\game\Tanks\bin\Debug\Tanks.pdb
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.GlobalConst.resources
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.Properties.Resources.resources
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.csproj.GenerateResource.cache
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.exe
+C:\Users\user\Desktop\develop\game\Tanks\obj\Debug\Tanks.pdb

@@ -7,14 +7,21 @@ using System.Windows.Forms;//
 
 namespace Tanks.Model
 {
-    enum Direction                       //направление
+    /// <summary>
+    /// направление
+    /// </summary>
+    public enum Direction                       
     {
         Up,
         Down,
         Left,
         Right
     }
-    abstract class Spirit                 //базовый класс сущность (дух)
+
+    /// <summary>
+    /// базовый класс сущность (дух)
+    /// </summary>
+    public abstract class Spirit                 
     {
         public int X { get; set; }         //локация сущности
         public int Y { get; set; }
@@ -25,6 +32,9 @@ namespace Tanks.Model
         {
             X = x; Y = y;                                     //создаем сущность с задаными координатами 
         }
+        /// <summary>
+        /// метод перемещения
+        /// </summary>
         public void move()
         {
             switch (direction)
@@ -44,7 +54,9 @@ namespace Tanks.Model
             }
             BorderCollision();            
         }
-
+        /// <summary>
+        /// метод проверяющий выход за границы
+        /// </summary>
         void BorderCollision()                              //проверка на выход за границы
         {
             if (X < 0) X = 0;
@@ -55,21 +67,32 @@ namespace Tanks.Model
 
     }  
     
-    
-    class Bullet : Spirit                                  //сущность снаряда
-    {
-        public delegate void CreateBullet();              //делегат на событие
-        public event CreateBullet onCreateBullet;         //событие: создание снаряда
-
+    /// <summary>
+    /// класс снарядов
+    /// </summary>
+    public class Bullet : Spirit                                  //сущность снаряда
+    {     
+        public bool distroy { get; set; }                      //уничтожен снаряд
         public Bullet(int x, int y, Direction direction) :base(x, y)        //создаем снаряд в заданной позиции
         {
             this.direction = direction;                                    //и берем направление у танка
-            onCreateBullet();                                        //создаем событие: создание снаряда
+            distroy = false;
+        }
+        /// <summary>
+        /// метод проверяющий выход за границы
+        /// </summary>
+        void BorderCollision()                              //проверка на выход за границы
+        {
+            if ((X < 0) || (X > GlobalConst.WindowWidth - GlobalConst.TankSize) ||
+                (Y < 0) || (Y > GlobalConst.WindowHight - GlobalConst.TankSize))
+            { distroy = true; }
         }
 
     }
-
-    class Tank : Spirit                                     //сущность танка
+    /// <summary>
+    /// класс танков
+    /// </summary>
+    public class Tank : Spirit                                     //сущность танка
     {          
         public List<Bullet> bullets = new List<Bullet>();   //список снарядов танка
 
@@ -77,19 +100,28 @@ namespace Tanks.Model
         {                                               
             direction = Direction.Up;                       //направлени танка            
         }
+
+        public delegate void NewBullet(Bullet b);      //создаеи делегат для события
+        public event NewBullet onNewBullet;       //создаем событие с типом NewBullet
         public void Shot()                                  //стрельба танка
         {
-            bullets.Add(new Bullet(X, Y, direction));       //добавляем в список снаряды
+            Bullet b = new Bullet(X, Y, direction);
+            bullets.Add(b);       //добавляем в список снарядов
+            onNewBullet(b);        //событие новый снаряд
+                                          //для отправки снаряда в список снарядов
         }
     }
-
+    /// <summary>
+    /// класс бизнес логики игры
+    /// </summary>
     class GameModel                                //игровая модель
     {
         public Tank GamerTank;
         public GameModel() 
         {   
             //создаем танк с необходимыми кординатами
-            GamerTank = new Tank(GlobalConst.WindowWidth / 2 - 2*GlobalConst.TankSize, GlobalConst.WindowHight - GlobalConst.TankSize);            
+            GamerTank = new Tank(GlobalConst.WindowWidth / 2 - 2*GlobalConst.TankSize, GlobalConst.WindowHight - GlobalConst.TankSize);
+               
         }
     }
 }
