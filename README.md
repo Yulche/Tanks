@@ -8,4 +8,4 @@
 
 **Описание:** Реализация известной игры танчики.
 
-**Стек технологий:** C#, windows form, .NetFramework 5.
+**Стек технологий:** C#, windows form, .NetFramework 4.7.
