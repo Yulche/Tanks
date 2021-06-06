@@ -179,8 +179,12 @@ namespace Tanks.Model
         
         public void Shot()                                     //стрельба танка
         {
-            Bullet b = new Bullet(X, Y, direction, IsEnemy);            
-            ModelsGame.listBullets.Add(b);                    //добавляем в список снарядов для отображения
+            if (!distroy)   //если танк не уничтожен
+            {
+                Bullet b = new Bullet(X, Y, direction, IsEnemy);            
+                ModelsGame.listBullets.Add(b);          //добавляем в список снарядов для отображения
+            }
+                  
         }
     }
     /// <summary>
