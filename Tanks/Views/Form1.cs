@@ -12,59 +12,12 @@ using Tanks.Control;
 
 namespace Tanks
 {
-    /// <summary>
-    /// глобальные параметры
-    /// </summary>
-    public class GlobalConst 
-    {
-        public static int WindowWidth = 800;      //размеры окна
-        public static int WindowHight = 600;
-        public static int WinStatisticsWidth = 200; //ширина области статистики
-
-        public static int TimerInterval = 50;     //время между тактами (чем больше, тем медленее)
-        public static int GameLife = 100;        //количество жизней
-        public static int CountBonusLife = 2;   //количество танков, что бы получить бонусную жизнь
-        public static int CountEnemyTanks = 4;   //количество вражеских танков одновременно
-
-        public static int TankSize = 80;         //размер танка
-        public static int MoveStep = 20;         //шаг перемещения
-        public static int Definition = TankSize / 2;  //точность (попаданий)
-
-        public static string Path = "pic\\";// "..\\..\\pic\\";                  //путь для файлов, ..- уровень выше
-                                                                      //public static string ImageGamerTank = Path + "tank_v1G2.png";   //изображение танка игрока
-        public static Image background = Image.FromFile(Path + "marble.jpg");      //фон
-        
-        public static Image[] PictureGamerTank = new Image[4];                    //массив картинок для танка игрока GamerTank
-        //public static Dictionary<string, Image> PictureGamerTank;               
-        public static Image[] PictureEnemyTank = new Image[4];                    //массив картинок для вражеского танка
-        public static Image[] PictureBullet = new Image[3];                       //массив картинок для снаряда
-
-        public static void Init()
-        {         
-            //загрузка массив картинок для танка игрока GamerTank
-            PictureGamerTank[0] = Image.FromFile(Path + "tank_v1G2_Up.png"); 
-            PictureGamerTank[1] = Image.FromFile(Path + "tank_v1G2_Down.png");
-            PictureGamerTank[2] = Image.FromFile(Path + "tank_v1G2_Left.png");
-            PictureGamerTank[3] = Image.FromFile(Path + "tank_v1G2_Right.png");
-            //
-            //загрузка массив картинок для вражеского танка EnemyTank
-            PictureEnemyTank[0] = Image.FromFile(Path + "tank_Enemy_Up.png");
-            PictureEnemyTank[1] = Image.FromFile(Path + "tank_enemy_Down.png");
-            PictureEnemyTank[2] = Image.FromFile(Path + "tank_Enemy_Left.png");
-            PictureEnemyTank[3] = Image.FromFile(Path + "tank_Enemy_Right.png");
-            //
-            //загрузка картинки для снаряда
-            PictureBullet[0] = Image.FromFile(Path + "bullet_0.png");
-            PictureBullet[1] = Image.FromFile(Path + "bullet_1.png");
-            PictureBullet[2] = Image.FromFile(Path + "bullet_2.png");
-        }
-    }
     public partial class Form1 : Form
     {
         Game game;               //игровая модель игра
         Controller ControlGame;       //контроллер игры
         //Statistics GameStatistics;    //статистика
-
+        bool IsGameOver = false;
         public Form1()
         {
             InitializeComponent();
@@ -75,7 +28,7 @@ namespace Tanks
             ClientSize = new Size(GlobalConst.WindowWidth + GlobalConst.WinStatisticsWidth, GlobalConst.WindowHight);   //задаем размер окна
             game = new Game();                                                   //запускаем игровую модель
             ControlGame = new Controller();                                     //запускаем контроллер                  
-            //GameStatistics = new Statistics();
+            GlobalConst.SoundBackround.PlayLooping();
             //
             //зацикливаем игру
             int time = 0;                                         //количество циклов таймера 
@@ -87,20 +40,27 @@ namespace Tanks
                 {
                     //проверка на попадания
                     foreach (Bullet b1 in ModelsGame.listBullets)      //снаряд со снарядом
-                        b.bump(b1); 
+                        b.Bump(b1); 
                     foreach (EnemyTank t in ModelsGame.listEnemyTnks)  //снаряд с танком
-                        b.bump(t);
-                    b.bump(ModelsGame.gamerTnk);   //проверяем попадания по танку игрока
-                    b.move();                    //изменения локации
+                        b.Bump(t);
+                    b.BumpWall(ModelsGame.walls);   //проверяем попадания по стенам
+                    b.Bump(ModelsGame.gamerTnk);   //проверяем попадания по танку игрока
+                    b.Move();                    //изменения локации
                 }
                 ModelsGame.AddEnemyTanks();
-                ControlGame.ContolEnemyTanks(5,time);
+                ControlGame.ContolEnemyTanks(3,time);    //чем менбше, тем умнеее            
                 //
                 //удаление уничтоженных объектов
                 if (time % 10 == 0)  //задержка удаления
-                    ModelsGame.RemoveAll();                  
+                    ModelsGame.RemoveAll();     
+                
                 time++;
                 Invalidate();                 //перерисовка графики
+                if (IsGameOver) 
+                {
+                    GlobalConst.soundGameOver.Play();
+                    MessageBox.Show("Game over");       //вызываем окно с текстом: конец игры
+                }   
             };
             timer.Start();                   //запуск таймера
             //
@@ -108,8 +68,17 @@ namespace Tanks
             GameStatistics.onGameOver += () => 
             { 
                 timer.Stop();                       //останавливаем игру
-                MessageBox.Show("Game over");       //вызываем окно с текстом: конец игры         
+                IsGameOver = true;
+                //MessageBox.Show("Game over");       //вызываем окно с текстом: конец игры         
             };
+            //
+            ModelsGame.walls.onGameOver += () =>
+            {
+                timer.Stop();                       //останавливаем игру
+                IsGameOver = true;
+                //MessageBox.Show("Game over");       //вызываем окно с текстом: конец игры         
+            };                      
+            
         }
         //
         /// <summary>
@@ -148,14 +117,56 @@ namespace Tanks
             }
             //отрисовка танка игрока
             var gtank = ModelsGame.gamerTnk;
+            if (gtank.distroy) 
+            {
+                gtank.distroy = false;
+                gtank.X = GlobalConst.WindowWidth / 2 - 2 * GlobalConst.TankSize;
+                gtank.Y = GlobalConst.WindowHight - GlobalConst.TankSize;
+            }
             g.DrawImage(GlobalConst.PictureGamerTank[(int)gtank.direction], gtank.X, gtank.Y, GlobalConst.TankSize, GlobalConst.TankSize);
             //
+            //отрисовка стен
+            for (int i=0; i<ModelsGame.walls.width; i++) 
+            {
+                for (int j=0; j<ModelsGame.walls.higth; j++) 
+                {
+                    int t = (int) ModelsGame.walls.mapWall[i, j]; //преобразуем тип стены в int
+                    if (t < 2) g.DrawImage(
+                        GlobalConst.PictureWall[t],
+                        i*GlobalConst.BrickSize,
+                        j*GlobalConst.BrickSize,
+                        GlobalConst.BrickSize,
+                        GlobalConst.BrickSize);
+                }
+            }
+            //рисуем штаб
+            g.DrawImage(GlobalConst.PictureBase[0],
+                (GlobalConst.WindowWidth-GlobalConst.TankSize)/2,
+                GlobalConst.WindowHight-GlobalConst.TankSize,
+                GlobalConst.TankSize,
+                GlobalConst.TankSize);
+            //
             //отрисовка поля статистики
-            g.DrawRectangle(new Pen(Color.Red, 5), GlobalConst.WindowWidth, 0, GlobalConst.WinStatisticsWidth, GlobalConst.WindowHight);
+            //g.DrawRectangle(new Pen(Color.Red, 5), GlobalConst.WindowWidth, 0, GlobalConst.WinStatisticsWidth, GlobalConst.WindowHight);
+			g.FillRectangle(Brushes.Gray, 
+                GlobalConst.WindowWidth, 0, 
+                GlobalConst.WinStatisticsWidth, GlobalConst.WindowHight);
             Font font = new Font(FontFamily.GenericSansSerif, 26);
             Brush brush = Brushes.Blue;
             g.DrawString("   Игровая \n cтатистика", font, brush, GlobalConst.WindowWidth, 30);
-            int y = 150;            
+            int y = 150;
+            g.DrawString("  Бонус: ", font, brush, GlobalConst.WindowWidth, y);
+            g.DrawString(" "+GlobalConst.CountBonusLife +" x      = ", font, brush, GlobalConst.WindowWidth, y+50);
+            g.DrawImage(                                                        //иконка танка врага
+                GlobalConst.PictureEnemyTank[0],
+                GlobalConst.WindowWidth + 70,
+                y + 50);
+            g.DrawImage(                                                          //иконка танка игрока
+               GlobalConst.PictureGamerTank[0],
+               GlobalConst.WindowWidth + 145,
+               y + 50);
+
+            y = 300;
             g.DrawString("  Счет: ", font, brush, GlobalConst.WindowWidth, y);  //счет
             g.DrawImage(                                                        //иконка танка врага
                 GlobalConst.PictureEnemyTank[0],
@@ -174,21 +185,9 @@ namespace Tanks
             g.DrawString("" + GameStatistics.GameLife, font, brush, GlobalConst.WindowWidth+50, y+50);
         }
 
-
-
-
-
-
-
-
         protected override void OnKeyDown(KeyEventArgs e)       //обработка кнопок
         {
-            ControlGame.ControlKey(e.KeyCode);                 //передача в контроллер
-            /*
-            ViewGamerTank.Location = new Point(Game.GamerTank.X, Game.GamerTank.Y);             //изменение положения
-            ViewGamerTank.Image = GlobalConst.PictureGamerTank[(int) Game.GamerTank.direction]; //изменение направления
-            */
-
+            ControlGame.ControlKey(e.KeyCode);                 //передача в контроллер            
         }
     }
 }

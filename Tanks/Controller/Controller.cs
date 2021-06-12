@@ -26,8 +26,9 @@ namespace Tanks.Control
                     break;                
             }
             if (key != Keys.Space)           //обработка стрельбы
-                ModelsGame.gamerTnk.move();      //перемещени танка
+                ModelsGame.gamerTnk.Move();      //перемещени танка
             else ModelsGame.gamerTnk.Shot();
+            ModelsGame.gamerTnk.Barrier(ModelsGame.walls);
         }
         //
         //искусственный интелект для танка
@@ -68,17 +69,31 @@ namespace Tanks.Control
         /// </summary>
         /// <param name="intelligence">уровень разума в %</param>
         public void ContolEnemyTanks(int intelligence, int time) 
-        {            
+        {
+            int count = 0;
             foreach (EnemyTank tank in ModelsGame.listEnemyTnks) 
             {
-                if (Mind(intelligence)) tank.direction = GoTo(tank.X, tank.Y, ModelsGame.gamerTnk.X, ModelsGame.gamerTnk.Y);
-                else 
-                    if (time % 10==0) tank.direction = (Direction)rnd.Next(0, 3);
+                tank.Barrier(ModelsGame.walls);     //проверка границ
 
+                if (count++ % 2 == 0)
+                {
+                    //цель танк игрока
+                    if (Mind(intelligence)) tank.direction = GoTo(tank.X, tank.Y, ModelsGame.gamerTnk.X, ModelsGame.gamerTnk.Y);
+                    else if (time % 50 == 0) tank.direction = (Direction)rnd.Next(0, 3);
+
+                }
+                else
+                {
+                    //цель штаб
+                    if (Mind(intelligence)) tank.direction = 
+                        GoTo(tank.X, tank.Y,
+                        GlobalConst.WindowWidth/2,   
+                        GlobalConst.WindowHight - GlobalConst.TankSize/2);
+                    else if (time % 25 == 0) tank.direction = (Direction)rnd.Next(0, 3);
+                }
                 tank.IsMove = Mind(intelligence);  //танк едет, если умный 
                 tank.MoveTo();
-
-                if (time % 25 == 0) tank.Shot();
+                if (time % 25 == 0) tank.Shot();                
             }
         }
     }
